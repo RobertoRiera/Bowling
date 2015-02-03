@@ -86,6 +86,25 @@ public class PlayerGameTest {
         assertEquals(15, playerGame.getFrames()[0].getScoring().getPoints());
         assertNull(playerGame.getFrames()[1].getScoring());
     }
+    @Test
+    public void withSpareAndStrikeAndThreeMoreRoll() {
+        Match match = createMatch();
+        match.addRolls(5,5,10,3,3,5).toPlayer("one");
+        PlayerGame playerGame = new PlayerGame(match, "one");
+        assertEquals(4, playerGame.getFrames().length);
+        assertEquals(20, playerGame.getFrames()[0].getScoring().getPoints());
+        assertEquals(36, playerGame.getFrames()[1].getScoring().getPoints());
+        assertEquals(42, playerGame.getFrames()[2].getScoring().getPoints());
+        assertNull(playerGame.getFrames()[3].getScoring());
+    }
+    @Test
+    public void withFinalSpare(){
+        Match match = createMatch();
+        match.addRolls(10,10,10,10,10,10,10,10,5,3,0,10,5).toPlayer("one");
+        PlayerGame playerGame = new PlayerGame(match, "one");
+        assertEquals(11, playerGame.getFrames().length);
+        assertEquals(246, playerGame.getFrames()[10].getScoring().getPoints());
+    }
 
     private Match createMatch() {
         Match match = new Match();
