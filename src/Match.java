@@ -1,9 +1,11 @@
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Match {
     private final List<Player> players;
     private final List<Roll> rolls;
+    private List<Roll> noPlayerRolls = new ArrayList<>();
 
     public Match() {
         this.players = new ArrayList<>();
@@ -44,14 +46,3 @@ public class Match {
         void toPlayer(String name);
     }
 }
-
-
-
-
-
-
-
-
-
-
-

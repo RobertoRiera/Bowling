@@ -1,16 +1,17 @@
+
 import java.util.Arrays;
 import java.util.List;
 
 public class PlayerFrame {
 
-    private final List<Roll> rolls;
-    private final int index;
-    private PlayerFrame previousFrame;
+    public static final PlayerFrame Empty = emptyFrame();
 
-    public PlayerFrame(PlayerFrame previousFrame, Roll[] rolls, int index) {
+    private PlayerFrame previousFrame;
+    private final Roll[] rolls;
+
+    public PlayerFrame(PlayerFrame previousFrame, Roll[] rolls) {
         this.previousFrame = previousFrame;
-        this.rolls = Arrays.asList(rolls);
-        this.index = index;
+        this.rolls = rolls;
     }
 
     public int getNumberOfRolls() {
@@ -18,16 +19,23 @@ public class PlayerFrame {
     }
 
     public Scoring getScoring() {
-        if (!isComplete()) return null;
-        return new Scoring((isStrike() || isSpare() ? pinsInThreeRolls() : pinsInTwoRolls()) + accumulatedPoints());
+        return isComplete() ? new Scoring(points()) : null;
     }
 
-    private int accumulatedPoints() {
-        return previousFrame == null || previousFrame.getScoring() == null ? 0 : previousFrame.getScoring().getPoints();
+    private int points() {
+        return pointsOfRolls() + pointsOfPreviousFrame();
+    }
+
+    private int pointsOfRolls() {
+        return isStrike() || isSpare() ? pinsInThreeRolls() : pinsInTwoRolls();
+    }
+
+    private int pointsOfPreviousFrame() {
+        return previousFrame.getScoring().getPoints();
     }
 
     private boolean isStrike() {
-        return getPinsOfRoll(index) == 10;
+        return firstRollPins() == 10;
     }
 
     private boolean isSpare() {
@@ -35,35 +43,47 @@ public class PlayerFrame {
     }
 
     private int pinsInTwoRolls() {
-        return getPinsOfRoll(index) + getPinsOfRoll(index + 1);
+        return firstRollPins() + secondRollPins();
     }
 
     private int pinsInThreeRolls() {
-        return pinsInTwoRolls() + getPinsOfRoll(index + 2);
+        return pinsInTwoRolls() + thirdRollPins();
+    }
+
+    private int firstRollPins() {
+        return getPinsOfRoll(0);
+    }
+
+    private int secondRollPins() {
+        return getPinsOfRoll(1);
+    }
+
+    private int thirdRollPins() {
+        return getPinsOfRoll(2);
     }
 
     private boolean isComplete() {
         return hasRequiredRolls(toCompleteFrame());
     }
 
-    private boolean hasRequiredRolls(int number) {
-        return index + number <= rolls.size();
-    }
-
     private boolean hasTwoRolls() {
         return hasRequiredRolls(2);
     }
 
-    private int toCompleteFrame(){
+    private int toCompleteFrame() {
         return isStrike() || isSpare() ? 3 : 2;
     }
 
+    private boolean hasRequiredRolls(int number) {
+        return number <= rolls.length;
+    }
+
     private int getPinsOfRoll(int index) {
-        if (index >= rolls.size()) return 0;
-        return rolls.get(index).getPins();
+        return rolls[index].getPins();
     }
 
     public class Scoring {
+
         private int points;
 
         public Scoring(int points) {
@@ -73,5 +93,14 @@ public class PlayerFrame {
         public int getPoints() {
             return points;
         }
+    }
+
+    private static PlayerFrame emptyFrame() {
+        return new PlayerFrame(null, new Roll[0]) {
+            @Override
+            public Scoring getScoring() {
+                return new Scoring(0);
+            }
+        };
     }
 }
